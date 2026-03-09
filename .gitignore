@@ -8,6 +8,10 @@ build/
 .next/
 .DS_Store
 .env
+.envrc
+env/
+venv/
+ENV/
 logs/
 reports/
 models/production/
@@ -15,3 +19,16 @@ models/registry/
 *.pkl
 *.joblib
 data/processed/
+htmlcov/
+.coverage
+.coverage.*
+.hypothesis/
+.ruff_cache/
+.mypy_cache/
+.pyre/
+.pytype/
+.cache/
+.tox/
+.nox/
+.ipynb_checkpoints/
+site/

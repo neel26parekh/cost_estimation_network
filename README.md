@@ -332,5 +332,3 @@ Operational helpers:
 - [src/laptop_price/ops.py](/Users/neelparekh/Desktop/GitHub/Cost_Estimation_Network/src/laptop_price/ops.py) for deployment preflight and API smoke testing
 
 To make deployment real in your environment, set the `RENDER_API_DEPLOY_HOOK_URL` and `RENDER_FRONTEND_DEPLOY_HOOK_URL` repository secrets and configure the production `API_KEY` in the hosting platform.
-
-
