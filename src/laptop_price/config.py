@@ -1,7 +1,27 @@
 import os
 from pathlib import Path
 
-ROOT_DIR = Path(__file__).resolve().parents[2]
+def _resolve_root_dir() -> Path:
+    env_root = os.getenv("LAPTOP_PRICE_ROOT")
+    if env_root:
+        candidate = Path(env_root).resolve()
+        if candidate.exists():
+            return candidate
+
+    cwd = Path.cwd().resolve()
+    cwd_markers = [cwd / "pyproject.toml", cwd / "data", cwd / "laptop_data.csv"]
+    if any(marker.exists() for marker in cwd_markers):
+        return cwd
+
+    package_root = Path(__file__).resolve().parents[2]
+    package_markers = [package_root / "pyproject.toml", package_root / "data", package_root / "laptop_data.csv"]
+    if any(marker.exists() for marker in package_markers):
+        return package_root
+
+    return cwd
+
+
+ROOT_DIR = _resolve_root_dir()
 DATA_DIR = ROOT_DIR / "data"
 RAW_DATA_DIR = DATA_DIR / "raw"
 MODEL_DIR = ROOT_DIR / "models" / "production"
@@ -35,6 +55,8 @@ LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 RAW_DATA_CANDIDATES = [
     RAW_DATA_DIR / "laptop_data.csv",
     ROOT_DIR / "laptop_data.csv",
+    Path.cwd().resolve() / "data" / "raw" / "laptop_data.csv",
+    Path.cwd().resolve() / "laptop_data.csv",
 ]
 
 RANDOM_STATE = 2
