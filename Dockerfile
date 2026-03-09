@@ -2,7 +2,7 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-COPY requirements.txt pyproject.toml ./
+COPY requirements.txt pyproject.toml README.md ./
 COPY src/ ./src/
 COPY data/ ./data/
 COPY models/ ./models/

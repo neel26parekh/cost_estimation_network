@@ -6,6 +6,8 @@ services:
     dockerfilePath: ./Dockerfile
     autoDeploy: true
     envVars:
+      - key: API_KEY
+        sync: false
       - key: PYTHONPATH
         value: /app/src
       - key: API_HOST
@@ -28,7 +30,7 @@ services:
     autoDeploy: true
     envVars:
       - key: API_BASE_URL
-        value: https://cost-estimation-api.onrender.com
+        value: https://cost-estimation-api-0o48.onrender.com
       - key: API_KEY
         sync: false
 
