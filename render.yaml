@@ -1,0 +1,43 @@
+services:
+  - type: web
+    name: cost-estimation-api
+    env: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    autoDeploy: true
+    envVars:
+      - key: PYTHONPATH
+        value: /app/src
+      - key: API_HOST
+        value: 0.0.0.0
+      - key: RATE_LIMIT_REQUESTS
+        value: 60
+      - key: RATE_LIMIT_WINDOW_SECONDS
+        value: 60
+      - key: RECENT_PREDICTIONS_LIMIT
+        value: 20
+      - key: MIN_DRIFT_ALERT_SAMPLE_SIZE
+        value: 25
+
+  - type: web
+    name: cost-estimation-frontend
+    env: docker
+    plan: free
+    dockerfilePath: ./frontend/Dockerfile
+    dockerContext: ./frontend
+    autoDeploy: true
+    envVars:
+      - key: API_BASE_URL
+        value: https://cost-estimation-api.onrender.com
+      - key: API_KEY
+        sync: false
+
+  - type: web
+    name: cost-estimation-streamlit
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: streamlit run app.py --server.port $PORT --server.address 0.0.0.0
+    envVars:
+      - key: PYTHONPATH
+        value: src

@@ -1,0 +1,17 @@
+.venv/
+.pytest_cache/
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.next/
+.DS_Store
+.env
+logs/
+reports/
+models/production/
+models/registry/
+*.pkl
+*.joblib
+data/processed/

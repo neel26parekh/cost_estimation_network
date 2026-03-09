@@ -1,0 +1,27 @@
+name: deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build API image
+        run: docker build -t cost-estimation-network:latest .
+      - name: Build frontend image
+        run: docker build -f frontend/Dockerfile -t cost-estimation-frontend:latest ./frontend
+      - name: Trigger Render API deploy
+        if: ${{ secrets.RENDER_API_DEPLOY_HOOK_URL != '' }}
+        run: curl -fsSL -X POST "$RENDER_API_DEPLOY_HOOK_URL"
+        env:
+          RENDER_API_DEPLOY_HOOK_URL: ${{ secrets.RENDER_API_DEPLOY_HOOK_URL }}
+      - name: Trigger Render frontend deploy
+        if: ${{ secrets.RENDER_FRONTEND_DEPLOY_HOOK_URL != '' }}
+        run: curl -fsSL -X POST "$RENDER_FRONTEND_DEPLOY_HOOK_URL"
+        env:
+          RENDER_FRONTEND_DEPLOY_HOOK_URL: ${{ secrets.RENDER_FRONTEND_DEPLOY_HOOK_URL }}
