@@ -38,7 +38,7 @@ services:
     name: cost-estimation-streamlit
     env: python
     plan: free
-    buildCommand: pip install -r requirements.txt
+    buildCommand: pip install . && PYTHONPATH=src python -m laptop_price.train --no-tuning
     startCommand: streamlit run app.py --server.port $PORT --server.address 0.0.0.0
     envVars:
       - key: PYTHONPATH

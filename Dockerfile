@@ -5,9 +5,9 @@ WORKDIR /app
 COPY requirements.txt pyproject.toml README.md ./
 COPY src/ ./src/
 COPY data/ ./data/
-COPY models/ ./models/
 
 RUN pip install --no-cache-dir .
+RUN python -m laptop_price.train --no-tuning
 
 EXPOSE 8000
 
