@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import asdict, is_dataclass
-from typing import Any, Iterable
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -51,10 +52,22 @@ def _parse_memory_components(memory_series: pd.Series) -> pd.DataFrame:
     second_numeric = second.str.replace(r"\D", "", regex=True).replace("", "0").astype(int)
 
     frame = pd.DataFrame(index=memory_series.index)
-    frame["HDD"] = first_numeric * first.str.contains("HDD").astype(int) + second_numeric * second.str.contains("HDD").astype(int)
-    frame["SSD"] = first_numeric * first.str.contains("SSD").astype(int) + second_numeric * second.str.contains("SSD").astype(int)
-    frame["Hybrid"] = first_numeric * first.str.contains("Hybrid").astype(int) + second_numeric * second.str.contains("Hybrid").astype(int)
-    frame["Flash_Storage"] = first_numeric * first.str.contains("Flash Storage").astype(int) + second_numeric * second.str.contains("Flash Storage").astype(int)
+    frame["HDD"] = (
+        first_numeric * first.str.contains("HDD").astype(int)
+        + second_numeric * second.str.contains("HDD").astype(int)
+    )
+    frame["SSD"] = (
+        first_numeric * first.str.contains("SSD").astype(int)
+        + second_numeric * second.str.contains("SSD").astype(int)
+    )
+    frame["Hybrid"] = (
+        first_numeric * first.str.contains("Hybrid").astype(int)
+        + second_numeric * second.str.contains("Hybrid").astype(int)
+    )
+    frame["Flash_Storage"] = (
+        first_numeric * first.str.contains("Flash Storage").astype(int)
+        + second_numeric * second.str.contains("Flash Storage").astype(int)
+    )
     return frame
 
 

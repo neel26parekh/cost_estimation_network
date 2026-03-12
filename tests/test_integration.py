@@ -1,10 +1,9 @@
 """Integration tests: full train → predict → log → drift roundtrip."""
 
 from pathlib import Path
-import json
 
-import laptop_price.predict as predictor
 import laptop_price.monitoring as monitoring_module
+import laptop_price.predict as predictor
 from laptop_price.schemas import PredictionRequest
 from laptop_price.train import train_and_save
 

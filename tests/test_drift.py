@@ -1,6 +1,6 @@
 import pandas as pd
 
-from laptop_price.drift import analyze_feature_drift, build_reference_profile, build_inference_feature_frame
+from laptop_price.drift import analyze_feature_drift, build_inference_feature_frame, build_reference_profile
 
 
 def test_build_reference_profile_contains_numeric_and_categorical_baselines() -> None:

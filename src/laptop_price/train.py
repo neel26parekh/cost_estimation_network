@@ -4,7 +4,7 @@ import argparse
 import json
 import shutil
 import tempfile
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -24,8 +24,8 @@ from .config import (
     LATEST_METRICS_PATH,
     METADATA_PATH,
     MODEL_DIR,
-    MODEL_REGISTRY_DIR,
     MODEL_PATH,
+    MODEL_REGISTRY_DIR,
     NUMERIC_COLUMNS,
     RANDOM_STATE,
     REGISTRY_INDEX_PATH,
@@ -238,7 +238,7 @@ def extract_feature_importances(pipeline) -> dict[str, float] | None:
     except AttributeError:
         return None
     importances = model.feature_importances_.tolist()
-    return dict(sorted(zip(feature_names, importances), key=lambda x: x[1], reverse=True))
+    return dict(sorted(zip(feature_names, importances, strict=False), key=lambda x: x[1], reverse=True))
 
 
 def select_best_model(X_train, X_test, y_train, y_test, candidate_models=None, enable_tuning: bool = True):
@@ -274,7 +274,12 @@ def select_best_model(X_train, X_test, y_train, y_test, candidate_models=None, e
             )
             grid_search.fit(X_train, y_train)
             pipeline = grid_search.best_estimator_
-            logger.info("Best params for %s: %s (cv_r2=%.4f)", model_name, grid_search.best_params_, grid_search.best_score_)
+            logger.info(
+                "Best params for %s: %s (cv_r2=%.4f)",
+                model_name,
+                grid_search.best_params_,
+                grid_search.best_score_,
+            )
         else:
             pipeline.fit(X_train, y_train)
 
@@ -294,7 +299,12 @@ def select_best_model(X_train, X_test, y_train, y_test, candidate_models=None, e
     return best_name, best_pipeline, best_metrics, all_metrics, cv_scores_by_model
 
 
-def train_and_save(raw_data_path: str | None = None, model_dir: Path | None = None, metrics_path: Path | None = None, enable_tuning: bool = True):
+def train_and_save(
+    raw_data_path: str | None = None,
+    model_dir: Path | None = None,
+    metrics_path: Path | None = None,
+    enable_tuning: bool = True,
+):
     ensure_directories()
     logger.info("Starting training pipeline")
 
@@ -326,8 +336,12 @@ def train_and_save(raw_data_path: str | None = None, model_dir: Path | None = No
 
     target_metrics_path = metrics_path or LATEST_METRICS_PATH
 
-    trained_at = datetime.now(timezone.utc)
-    resolved_data_path = Path(raw_data_path).resolve() if raw_data_path is not None else resolve_raw_data_path().resolve()
+    trained_at = datetime.now(UTC)
+    resolved_data_path = (
+        Path(raw_data_path).resolve()
+        if raw_data_path is not None
+        else resolve_raw_data_path().resolve()
+    )
     model_version = trained_at.strftime("%Y%m%d%H%M%S%f")
 
     # Extract feature importances from final pipeline
@@ -390,8 +404,17 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Train and persist the laptop price model.")
     parser.add_argument("--data", dest="data_path", default=None, help="Optional path to laptop_data.csv")
     parser.add_argument("--list-versions", action="store_true", help="List registered model versions")
-    parser.add_argument("--activate-version", dest="activate_version", default=None, help="Promote a registered model version to production")
-    parser.add_argument("--no-tuning", action="store_true", help="Skip GridSearchCV hyperparameter tuning for faster training")
+    parser.add_argument(
+        "--activate-version",
+        dest="activate_version",
+        default=None,
+        help="Promote a registered model version to production",
+    )
+    parser.add_argument(
+        "--no-tuning",
+        action="store_true",
+        help="Skip GridSearchCV hyperparameter tuning for faster training",
+    )
     args = parser.parse_args()
 
     if args.list_versions:

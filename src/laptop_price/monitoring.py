@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from .config import PREDICTION_DB_PATH, PREDICTION_LOG_PATH, RECENT_PREDICTIONS_LIMIT, ensure_directories
@@ -30,7 +30,7 @@ def ensure_prediction_store() -> None:
 def append_prediction_log(payload: dict[str, Any]) -> None:
     ensure_prediction_store()
     log_record = {
-        "logged_at_utc": datetime.now(timezone.utc).isoformat(),
+        "logged_at_utc": datetime.now(UTC).isoformat(),
         **payload,
     }
     with PREDICTION_LOG_PATH.open("a", encoding="utf-8") as handle:
@@ -69,7 +69,8 @@ def read_recent_prediction_logs(limit: int | None = None) -> list[dict[str, Any]
         with sqlite3.connect(PREDICTION_DB_PATH) as connection:
             rows = connection.execute(
                 """
-                SELECT logged_at_utc, request_id, model_name, model_version, predicted_price_inr, latency_ms, features_json
+                SELECT logged_at_utc, request_id, model_name, model_version,
+                       predicted_price_inr, latency_ms, features_json
                 FROM predictions
                 ORDER BY logged_at_utc DESC
                 LIMIT ?

@@ -1,9 +1,9 @@
-from pathlib import Path
 import json
+from pathlib import Path
 
 import laptop_price.predict as predictor
-from laptop_price.schemas import PredictionRequest
 import laptop_price.train as train_module
+from laptop_price.schemas import PredictionRequest
 from laptop_price.train import activate_model_version, candidate_beats_production, load_registry_index, train_and_save
 
 

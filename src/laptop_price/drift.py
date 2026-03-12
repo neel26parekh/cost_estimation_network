@@ -2,15 +2,15 @@ from __future__ import annotations
 
 import argparse
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import pandas as pd
 
 from .config import (
     CATEGORICAL_COLUMNS,
-    DRIFT_ANALYSIS_LIMIT,
     CATEGORICAL_UNSEEN_RATE_THRESHOLD,
+    DRIFT_ANALYSIS_LIMIT,
     FEATURE_COLUMNS,
     LATEST_DRIFT_REPORT_PATH,
     NUMERIC_COLUMNS,
@@ -20,7 +20,6 @@ from .config import (
 from .features import build_inference_dataframe, build_modeling_dataframe, load_raw_dataset
 from .monitoring import read_recent_prediction_logs
 from .predict import load_metadata
-
 
 UI_OPTION_KEYS = {
     "Company": "companies",
@@ -130,7 +129,7 @@ def generate_drift_report(limit: int | None = None) -> dict[str, Any]:
     drift_summary = analyze_feature_drift(inference_df, reference_profile, metadata)
 
     report = {
-        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+        "generated_at_utc": datetime.now(UTC).isoformat(),
         "model_name": metadata["model_name"],
         "model_version": metadata["model_version"],
         "sample_size": int(len(inference_df)),
@@ -152,7 +151,12 @@ def load_latest_drift_report() -> dict[str, Any]:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Analyze prediction logs for feature drift.")
-    parser.add_argument("--limit", type=int, default=DRIFT_ANALYSIS_LIMIT, help="Number of recent predictions to analyze")
+    parser.add_argument(
+        "--limit",
+        type=int,
+        default=DRIFT_ANALYSIS_LIMIT,
+        help="Number of recent predictions to analyze",
+    )
     args = parser.parse_args()
     print(json.dumps(generate_drift_report(limit=args.limit), indent=2))
 

@@ -5,8 +5,7 @@ from __future__ import annotations
 import pandera.pandas as pa
 from pandera.pandas import Column, DataFrameSchema
 
-from .config import CATEGORICAL_COLUMNS, FEATURE_COLUMNS, NUMERIC_COLUMNS, TARGET_COLUMN
-
+from .config import TARGET_COLUMN
 
 training_schema = DataFrameSchema(
     columns={
