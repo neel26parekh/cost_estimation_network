@@ -7,8 +7,7 @@ model quality can be monitored across versions.
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
-from pathlib import Path
+from datetime import UTC, datetime
 from typing import Any
 
 from .config import METRICS_DIR
@@ -27,7 +26,7 @@ def append_training_run(metadata: dict[str, Any]) -> None:
     """Append a training run entry to the performance history."""
     history = load_performance_history()
     entry = {
-        "recorded_at_utc": datetime.now(timezone.utc).isoformat(),
+        "recorded_at_utc": datetime.now(UTC).isoformat(),
         "model_version": metadata["model_version"],
         "model_name": metadata["model_name"],
         "metrics": metadata["metrics"],

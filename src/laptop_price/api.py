@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from time import perf_counter
 from uuid import uuid4
 
@@ -11,8 +11,8 @@ from .drift import load_latest_drift_report
 from .logger import get_logger
 from .monitoring import append_prediction_log, read_recent_prediction_logs, summarize_prediction_logs
 from .predict import load_metadata, load_model, predict_price
-from .security import authorize_request
 from .schemas import PredictionLogEntry, PredictionRequest, PredictionResponse
+from .security import authorize_request
 
 logger = get_logger(__name__)
 
@@ -53,7 +53,7 @@ def health() -> dict:
     try:
         metadata = load_metadata()
         trained_at = datetime.fromisoformat(metadata["trained_at_utc"])
-        age_days = (datetime.now(timezone.utc) - trained_at).days
+        age_days = (datetime.now(UTC) - trained_at).days
         result["model_age_days"] = age_days
         if age_days > MODEL_MAX_AGE_DAYS:
             result["warning"] = f"Model is {age_days} days old (threshold: {MODEL_MAX_AGE_DAYS})"
@@ -88,7 +88,11 @@ def metadata(request: Request, _: None = Depends(authorize_request)) -> dict:
 
 
 @v1.get("/predictions/recent", response_model=list[PredictionLogEntry])
-def recent_predictions(request: Request, limit: int = Query(default=RECENT_PREDICTIONS_LIMIT, ge=1, le=100), _: None = Depends(authorize_request)) -> list[dict]:
+def recent_predictions(
+    request: Request,
+    limit: int = Query(default=RECENT_PREDICTIONS_LIMIT, ge=1, le=100),
+    _: None = Depends(authorize_request),
+) -> list[dict]:
     return read_recent_prediction_logs(limit=limit)
 
 
@@ -151,7 +155,11 @@ def metadata_compat(request: Request, _: None = Depends(authorize_request)) -> d
 
 
 @app.get("/predictions/recent", response_model=list[PredictionLogEntry])
-def recent_predictions_compat(request: Request, limit: int = Query(default=RECENT_PREDICTIONS_LIMIT, ge=1, le=100), _: None = Depends(authorize_request)) -> list[dict]:
+def recent_predictions_compat(
+    request: Request,
+    limit: int = Query(default=RECENT_PREDICTIONS_LIMIT, ge=1, le=100),
+    _: None = Depends(authorize_request),
+) -> list[dict]:
     return recent_predictions(request, limit, _)
 
 
@@ -166,5 +174,9 @@ def monitoring_summary_compat(request: Request, _: None = Depends(authorize_requ
 
 
 @app.post("/predict", response_model=PredictionResponse)
-def predict_compat(request: Request, payload: PredictionRequest, _: None = Depends(authorize_request)) -> PredictionResponse:
+def predict_compat(
+    request: Request,
+    payload: PredictionRequest,
+    _: None = Depends(authorize_request),
+) -> PredictionResponse:
     return predict(request, payload, _)

@@ -1,9 +1,9 @@
-from fastapi.testclient import TestClient
 import json
+
+from fastapi.testclient import TestClient
 
 import laptop_price.api as api_module
 import laptop_price.security as security_module
-
 
 client = TestClient(api_module.app)
 
@@ -143,7 +143,12 @@ def test_v1_predict_endpoint_returns_503_when_artifacts_missing(monkeypatch) -> 
 
 
 def test_v1_predict_endpoint_returns_422_for_invalid_prediction(monkeypatch) -> None:
-    monkeypatch.setattr(api_module, "predict_price", lambda payload: (_ for _ in ()).throw(ValueError("Prediction result is not finite. Provide a realistic laptop configuration.")))
+    err_msg = "Prediction result is not finite. Provide a realistic laptop configuration."
+    monkeypatch.setattr(
+        api_module,
+        "predict_price",
+        lambda payload: (_ for _ in ()).throw(ValueError(err_msg)),
+    )
 
     response = client.post(
         "/v1/predict",
@@ -230,7 +235,13 @@ def test_v1_recent_predictions_endpoint(monkeypatch, tmp_path) -> None:
         + "\n",
         encoding="utf-8",
     )
-    monkeypatch.setattr(api_module, "read_recent_prediction_logs", lambda limit: json.loads("[" + ",".join(log_path.read_text(encoding="utf-8").splitlines()[::-1][:limit]) + "]"))
+    monkeypatch.setattr(
+        api_module,
+        "read_recent_prediction_logs",
+        lambda limit: json.loads(
+            "[" + ",".join(log_path.read_text(encoding="utf-8").splitlines()[::-1][:limit]) + "]"
+        ),
+    )
 
     response = client.get("/v1/predictions/recent?limit=1")
 

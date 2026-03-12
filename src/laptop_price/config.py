@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 
+
 def _resolve_root_dir() -> Path:
     env_root = os.getenv("LAPTOP_PRICE_ROOT")
     if env_root:
